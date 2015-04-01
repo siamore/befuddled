@@ -10,6 +10,7 @@ let Toolbar = require('./components/Toolbar.js');
 let SignUp = require('./components/SignUp.js');
 let Home = require('./components/Home.js');
 let Test = require('./components/Test.js');
+let Results = require('./components/Results.js')
 
 let App = React.createClass({  
   render() {
@@ -28,7 +29,7 @@ let routes = (
 		<Route name="home" path="/home" handler={Home} />
 		<Route name="test" path="/test" handler={Test} />
     <Route name="contact_us" path="/contact_us" handler={ContactUsHandler}/>
-		<DefaultRoute handler={Test}/>
+		<DefaultRoute handler={Results}/>
   </Route>
 );
 
