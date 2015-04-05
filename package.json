@@ -4,7 +4,8 @@
   "description": "Quiz app",
   "scripts": {
     "start": "webpack-dev-server --hot --progress --colors",
-    "build": "webpack --progress --colors"
+    "build": "webpack --progress --colors",
+    "startWithBackend":"webpack-dev-server --hot --progress --colors --content-base-target 'http://localhost:9090'"
   },
   "repository": {
     "type": "git",
@@ -19,8 +20,12 @@
   "devDependencies": {
     "babel-core": "^4.7.16",
     "babel-loader": "^4.2.0",
+    "basic-auth": "^1.0.0",
+    "bcrypt": "^0.8.2",
     "classnames": "^1.2.0",
+    "express": "^4.12.3",
     "immstruct": "^1.4.0",
+    "mongodb": "^2.0.25",
     "react": "^0.13.1",
     "react-bootstrap": "^0.19.1",
     "react-hot-loader": "^1.2.4",
