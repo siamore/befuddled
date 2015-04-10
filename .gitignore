@@ -5,3 +5,4 @@ build/
 *.swo
 *~
 .c9/
+npm-debug.log

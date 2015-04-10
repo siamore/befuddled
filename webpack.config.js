@@ -9,6 +9,9 @@ module.exports = {
         path: path.join(__dirname, '/build'),
         filename: "bundle.js"
     },
+    externals: {
+    	"jquery": "jQuery"
+    },
     module: {
         loaders: [
             { test: /\.js?$/, loaders: ['react-hot', 'babel'], exclude: /node_modules/ },
