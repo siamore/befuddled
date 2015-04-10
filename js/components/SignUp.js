@@ -7,6 +7,15 @@ const { Jumbotron, Button, Grid, Row, Col, Input, Well } =
 
 let SignUp = React.createClass({ 
 	signUp: $.proxy(function(){
+
+		var pass = this.refs.pass.getValue();
+		var repeat = this.refs.repeat.getValue();
+
+		if(pass !== repeat) {
+			alert("Passwords not matching!");
+			return;
+		}
+
 		$.ajax({
 			type: "POST",
 			url: "/api/users",
@@ -17,8 +26,17 @@ let SignUp = React.createClass({
 				ino: this.refs.ino.getValue(),
 				password: this.refs.pass.getValue()
 			}),
-			success: function(data) { console.log(data); alert("done"); },
-			failure: function(err) { console.log(err); alert("Error"); }
+			success: function(data) { 
+				console.log(data); 
+				alert("done"); 
+				
+			},
+			// failure: function(err) { console.log(err); alert("Error"); }
+			statusCode: {
+		        500: function(err) {
+		        	alert(JSON.parse(err.error().responseText).err); []
+	        }
+      }
 		});
 	},this),
   render() {

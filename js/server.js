@@ -51,6 +51,11 @@ app.get('/api/users/:ino', auth, function(req,res){
 app.post('/api/users', function(req, res){
   var db = req.db;
   console.log(req.body);
+
+  if(db.collection('users').find({"ino":req.body.ino})){
+    res.status(500).json({"err":"User Exists"});
+  }
+
   db.collection('users').insert([req.body], function(err, result){
     if(err === null){
       res.json(req.body);
