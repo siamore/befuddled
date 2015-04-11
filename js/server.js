@@ -10,7 +10,7 @@ var mongo = require('mongodb').MongoClient;
 var db = undefined;
 
 var url = 'mongodb://localhost:27017/befuddled';
-mongo.connect(url,function(err, con) { db = con; console.log("Connected to DB"); });
+mongo.connect(url,function(err, con) { db = con; console.log("Connected to DB " + err); });
 
 // Make our db accessible to our router
 app.use(function(req,res,next){
@@ -52,15 +52,17 @@ app.post('/api/users', function(req, res){
   var db = req.db;
   console.log(req.body);
 
-  if(db.collection('users').find({"ino":req.body.ino})){
-    res.status(500).json({"err":"User Exists"});
-  }
-
-  db.collection('users').insert([req.body], function(err, result){
-    if(err === null){
-      res.json(req.body);
+  db.collection('users').find({"ino":req.body.ino}).toArray(function(err, data){
+    if(data.length){
+      res.status(500).json({"err":"User Exists"});
     } else {
-      res.status(500).json(err);
+      db.collection('users').insert([req.body], function(err, result){
+        if(err === null){
+          res.json(req.body);
+        } else {
+          res.status(500).json(err);
+        }
+      });
     }
   });
 });
