@@ -1,18 +1,27 @@
 const React = require('react');
 const Router = require('react-router');
 const $ = require('jquery');
+const imm = require('immstruct');
 
-const { Jumbotron, Button, Grid, Row, Col, Input, Well } = 
+const { Jumbotron, Button, Grid, Row, Col, Input, Well } =
 	require('react-bootstrap');
 
-let SignUp = React.createClass({ 
+let appState = imm('state');
+
+let SignUp = React.createClass({
 	signUp: $.proxy(function(){
 
-		var pass = this.refs.pass.getValue();
-		var repeat = this.refs.repeat.getValue();
+		let pass = this.refs.pass.getValue();
+		let repeat = this.refs.repeat.getValue();
+
+		let ino = this.refs.ino.getValue();
 
 		if(pass !== repeat) {
 			alert("Passwords not matching!");
+			return;
+		}
+		if(!/^(i|I)\d{6}$/.test(ino)){
+			alert("I-Number is incorrect");
 			return;
 		}
 
@@ -23,20 +32,15 @@ let SignUp = React.createClass({
 		  contentType: "application/json; charset=utf-8",
 			data: JSON.stringify({
 				name: this.refs.name.getValue(),
-				ino: this.refs.ino.getValue(),
-				password: this.refs.pass.getValue()
+				ino: ino,
+				password: pass
 			}),
-			success: function(data) { 
-				console.log(data); 
-				alert("done"); 
-				
+			success: function(data) {
+				console.log(data);
+				alert("done");
+
 			},
-			// failure: function(err) { console.log(err); alert("Error"); }
-			statusCode: {
-		        500: function(err) {
-		        	alert(JSON.parse(err.error().responseText).err); []
-	        }
-      }
+			error: err => alert(JSON.parse(err.error().responseText).err)
 		});
 	},this),
   render() {
@@ -62,6 +66,4 @@ let SignUp = React.createClass({
   }
 });
 
-module.exports = SignUp;  
-
-
+module.exports = SignUp;

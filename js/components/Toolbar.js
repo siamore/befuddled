@@ -8,7 +8,7 @@ const imm = require('immstruct');
 let ContactUs = require('./ContactUs.js');
 let appState = imm('state');
 
-var userLoggedInStateSlice = appState.reference(['user','loggedIn']);
+var userLoggedInStateSlice = appState.reference(['app','loggedIn']);
 
 let Toolbar = React.createClass({
   contextTypes: {
@@ -38,13 +38,13 @@ let Toolbar = React.createClass({
         <div className="pull-right">
           <form className="navbar-form" role="login">
             <div className="input-group">
-              <Input type="text" placeholder="I Number"
+              <Input type="text" placeholder="I Number" className="input-sm"
                 ref="ino" />
-              <Input type="text" placeholder="Password"
+              <Input type="text" placeholder="Password" className="input-sm"
                 ref="pass" />
               <div className="input-group-btn">
-                <Button bsStyle="success" onClick={this.loginYo}>Log In
-                  </Button>
+                <Button bsStyle="success" bsSize="small" onClick={this.loginYo}>
+                Log In </Button>
               </div>
             </div>
           </form>
@@ -52,25 +52,29 @@ let Toolbar = React.createClass({
     );
   },
   loginYo: $.proxy(function(){
+    let ino = this.refs.ino.getValue();
+
+    if(!/^(i|I)\d{6}$/.test(ino)){
+			alert("I-Number is incorrect");
+			return;
+		}
+
     $.ajax({
       type: "GET",
       url: "/api/users/" + this.refs.ino.getValue(),
       datatype: "json",
       contentType: "application/json; charset=utf-8",
       context: this,
-      username: this.refs.ino.getValue(),
-      password: this.refs.pass.getValue(),
+      headers: {
+        "Authorization": "Basic " + btoa(ino + ":" + this.refs.pass.getValue())
+      },
       success: function(data){
-        userLoggedInStateSlice.cursor().update(function(){
-          return true;
-        });
+        userLoggedInStateSlice.cursor().update(() => true);
 
         this.context.router.transitionTo('home');
         console.log(data);
       },
-      error: function(){
-        alert("Please check your credentials");
-      }
+      error: () => alert("Please check your credentials")
     });
   },this),
   bail: $.proxy(function(){
@@ -84,9 +88,7 @@ let Toolbar = React.createClass({
       username: "log",
       password: "out",
       error: function(){
-        userLoggedInStateSlice.cursor().update(function(){
-          return false;
-        });
+        userLoggedInStateSlice.cursor().update(() => false);
         this.context.router.transitionTo('sign_up');
       }
     });

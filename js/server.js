@@ -8,13 +8,22 @@ var app = express();
 var mongo = require('mongodb').MongoClient;
 
 var db = undefined;
+var quizSets = undefined;
 
 var url = 'mongodb://localhost:27017/befuddled';
-mongo.connect(url,function(err, con) { db = con; console.log("Connected to DB " + err); });
+mongo.connect(url,function(err, con) {
+  db = con;
+  console.log("Connected to DB. error: " + err);
+  db.collection('quizSets').find({},{"_id":0}).toArray(function(err,data){
+    quizSets = data;
+    console.log("Quiz sets loaded. error: " + err);
+  });
+});
 
 // Make our db accessible to our router
 app.use(function(req,res,next){
     req.db = db;
+    req.quizSets = quizSets;
     next();
 });
 
@@ -23,41 +32,64 @@ app.use(bodyParser.json());
 
 var auth = function (req, res, next) {
   function unauthorized(res) {
-    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-    return res.send(401);
+    return res.sendStatus(401);
   };
 
   var user = basicAuth(req);
-
   if (!user || !user.name || !user.pass) {
     return unauthorized(res);
   };
 
+  req.user = user.name;
+
   var db = req.db;
 
-  if (user.name === 'foo' && user.pass === 'bar') {
-    return next();
-  } else {
-    return unauthorized(res);
-  };
+  db.collection('users').find({"ino":user.name},{"password":1}).next(
+    function(err, result){
+    if(err || !result || result.password !== user.pass){
+      return unauthorized(res);
+    } else return next();
+  });
 };
 
-
 app.get('/api/users/:ino', auth, function(req,res){
-  console.log("Servicing" + req.get('accept'));
-  res.send('{"I_am_Groot":'+ req.params.ino +'}');
+  //res.send('{"I_am_Groot":'+ req.params.ino +'}');
+  if(req.user !== req.params.ino){
+    res.sendStatus(401);
+    return;
+  }
+  db.collection('users').find({"ino":req.user},{"password":0,"_id":0}).next(
+    function(err, result){
+    if(err || !result){
+      return res.status(500).json(err);
+    } else {
+      result.testsAvailable = req.quizSets.map(function(quizSet){
+        return {"name":quizSet.name,"id":quizSet.id}
+      });
+      return res.status(200).json(result);
+    }
+  });
+});
+
+app.get('/api/quiz_sets/:set_no', auth, function(req,res){
+  res.status(200).json(req.quizSets.filter(function(quizSet){
+    return quizSet.id === req.params.set_no;
+  })[0]);
 });
 
 app.post('/api/users', function(req, res){
   var db = req.db;
-  console.log(req.body);
 
   db.collection('users').find({"ino":req.body.ino}).toArray(function(err, data){
     if(data.length){
       res.status(500).json({"err":"User Exists"});
     } else {
+      req.body.testsTaken = [];
       db.collection('users').insert([req.body], function(err, result){
         if(err === null){
+          req.body.testsAvailable = req.quizSets.map(function(quizSet){
+            return {"name":quizSet.name,"id":quizSet.id}
+          });
           res.json(req.body);
         } else {
           res.status(500).json(err);
@@ -65,6 +97,37 @@ app.post('/api/users', function(req, res){
       });
     }
   });
+});
+
+app.post('/api/quiz_sets/:id',auth, function(req,res){
+  var db = req.db;
+
+  console.log(req.body)
+
+  var set = req.quizSets.filter(function(quizSet){
+    return quizSet.id === req.params.id;
+  })[0];
+
+  var score = 0;
+  set.questions.forEach(function(qtn,i){
+    if(qtn.correctAns === req.body.responses[i]){
+      score+=qtn.points
+    };
+  },this);
+
+  console.log(score)
+
+  var ins = {id:req.body.id,
+    responses:req.body.responses,
+      takenOn:req.body.takenOn,
+      scored:score}
+
+  console.log(ins)
+
+  db.collection('users').update({"ino":req.user},{$push:
+    {testsTaken: ins }},function(err,result){
+      res.sendStatus(200);
+    })
 });
 
 app.use(express.static(path.join(__dirname, '../')));

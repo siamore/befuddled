@@ -13,10 +13,15 @@ let Test = require('./components/Test.js');
 let Results = require('./components/Results.js');
 
 let appState = imm('state',{
+	app: {
+		loggedIn: false
+	},
 	user: {
-		loggedIn: false,
-		userId: undefined,
-		password: undefined
+		name: undefined,
+		ino: undefined,
+		password: undefined,
+		testsTaken: [],
+		testsAvailable: []
 	}
 });
 
