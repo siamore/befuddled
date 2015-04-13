@@ -9,6 +9,9 @@ const { Jumbotron, Button, Grid, Row, Col, Input, Well } =
 let appState = imm('state');
 
 let SignUp = React.createClass({
+	contextTypes: {
+    router: React.PropTypes.func
+  },
 	signUp: $.proxy(function(){
 
 		let pass = this.refs.pass.getValue();
@@ -35,10 +38,13 @@ let SignUp = React.createClass({
 				ino: ino,
 				password: pass
 			}),
+			context: this,
 			success: function(data) {
 				console.log(data);
 				alert("done");
-
+				appState.cursor(['app','loggedIn']).update(()=>true);
+				appState.cursor(['user']).update(() => data);
+				this.context.router.transitionTo('home');
 			},
 			error: err => alert(JSON.parse(err.error().responseText).err)
 		});

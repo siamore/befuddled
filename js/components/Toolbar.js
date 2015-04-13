@@ -8,7 +8,7 @@ const imm = require('immstruct');
 let ContactUs = require('./ContactUs.js');
 let appState = imm('state');
 
-var userLoggedInStateSlice = appState.reference(['app','loggedIn']);
+let userLoggedInStateSlice = appState.reference(['app','loggedIn']);
 
 let Toolbar = React.createClass({
   contextTypes: {
@@ -72,6 +72,7 @@ let Toolbar = React.createClass({
         userLoggedInStateSlice.cursor().update(() => true);
 
         this.context.router.transitionTo('home');
+        appState.cursor(['user']).update(() => data);
         console.log(data);
       },
       error: () => alert("Please check your credentials")

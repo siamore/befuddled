@@ -2,7 +2,7 @@ const React = require('react');
 
 const { Jumbotron, Button, Grid, Row, Col } = require('react-bootstrap');
 
-let ContactUs = React.createClass({ 
+let ContactUs = React.createClass({
 
   render() {
     return(
@@ -12,7 +12,7 @@ let ContactUs = React.createClass({
 						<Jumbotron>
 							<h1>Hello, fellow quizzer!</h1>
 							<p>You can email me for any queries, just click the button. </p>
-							<Button href='mailto:manjunath.k.s@sap.com?subject=Regarding%20the%20Befuddled%20quiz%20app'>Email me!</Button>
+							<Button href='mailto:bubba@forrest.com?subject=Regarding%20the%20Befuddled%20quiz%20app'>Email me!</Button>
 						</Jumbotron>
 					</Col>
 				</Row>
@@ -21,5 +21,4 @@ let ContactUs = React.createClass({
   }
 });
 
-module.exports = ContactUs;  
-
+module.exports = ContactUs;
