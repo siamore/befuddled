@@ -7,22 +7,28 @@ const { Button, Grid, Row, Col, PageHeader } = require('react-bootstrap');
 let appState = imm('state');
 
 let Home = React.createClass({
+  contextTypes: {
+    router: React.PropTypes.func
+  },
   getInitialState: function() {
-    return appState.cursor(['user']).deref();
+    return appState.cursor(['user']).toJS();
+  },
+  buttonMaker: function (quizSet, index){
+    return (
+      <Col md={3} xs={12}>
+        <Button bsStyle='primary' onClick={this.clicky} key={quizSet.id} bsSize='large'>
+          {quizSet.name}
+        </Button>
+      </Col>
+    );
+  },
+  clicky: function (ev){
+   let rid=ev.currentTarget.getAttribute("data-reactid");
+   let key=rid.substr(rid.indexOf("$")+1);
+   appState.cursor(['selectedQuiz','id']).update(() => key);
+   this.context.router.transitionTo('intro');
   },
   render() {
-    function clicky(){
-      console.log(this);
-    }
-    function buttonMaker(quizSet, index){
-      return (
-        <Col md={3} xs={12}>
-          <Button bsStyle='primary' onClick={clicky} key={quizSet.id} bsSize='large'>
-            {quizSet.name}
-          </Button>
-        </Col>
-      );
-    }
     return(
 			<Grid>
 				<Row>
@@ -31,7 +37,7 @@ let Home = React.createClass({
               {this.state.name}<small>{this.state.ino}</small>
             </PageHeader>
           </Col>
-          {this.state.testsAvailable.map(buttonMaker)}
+          {this.state.testsAvailable.map(this.buttonMaker,this)}
 				</Row>
 			</Grid>
 		);

@@ -64,7 +64,7 @@ app.get('/api/users/:ino', auth, function(req,res){
       return res.status(500).json(err);
     } else {
       result.testsAvailable = req.quizSets.map(function(quizSet){
-        return {"name":quizSet.name,"id":quizSet.id}
+        return {"name":quizSet.name,"id":quizSet.id,description:quizSet.description}
       });
       return res.status(200).json(result);
     }

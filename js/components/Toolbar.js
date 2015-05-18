@@ -4,6 +4,7 @@ const { Navbar, Nav, Input, Button, Grid, Col, Row, NavItem } =
 const { NavItemLink } = require('react-router-bootstrap');
 const $ = require('jquery');
 const imm = require('immstruct');
+const immut = require('immutable');
 
 let ContactUs = require('./ContactUs.js');
 let appState = imm('state');
@@ -69,11 +70,14 @@ let Toolbar = React.createClass({
         "Authorization": "Basic " + btoa(ino + ":" + this.refs.pass.getValue())
       },
       success: function(data){
+        appState.cursor(['user']).update(()=>immut.fromJS(data));
+
+        //have to update password manually as it won't be sent back by the server
+        appState.cursor(['user','password']).update(() => this.refs.pass.getValue());
+
         userLoggedInStateSlice.cursor().update(() => true);
 
         this.context.router.transitionTo('home');
-        appState.cursor(['user']).update(() => data);
-        console.log(data);
       },
       error: () => alert("Please check your credentials")
     });
