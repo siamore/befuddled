@@ -16,7 +16,10 @@ let Intro = require("./components/Intro.js");
 let appState = imm('state',{
 	app: {
 		loggedIn: false,
-		selectedQuiz: {id: undefined}
+		selectedQuiz: {
+			id: undefined,
+			responses: []
+			}
 	},
 	user: {
 		name: undefined,
@@ -42,7 +45,7 @@ let App = React.createClass({
 let routes = (
   <Route name="app" path="/" handler={App}>
 		<Route name="home" path="/home" handler={Home} />
-		<Route name="test" path="/test" handler={Test} />
+		<Route name="test" path="/test/:quizID/:qno" handler={Test} />
     <Route name="contact_us" path="/contact_us" handler={ContactUsHandler}/>
 		<Route name="sign_up" path="/sign_up" handler={SignUp}/>
 		<Route name="intro" path="/intro" handler={Intro}/>

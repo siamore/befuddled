@@ -32,7 +32,7 @@ let Intro = React.createClass({
     return quizData;
   },
   clicky: function (event) {
-    this.context.router.transitionTo('test');
+    this.context.router.transitionTo('test',{quizID:this.state.id, qno:1});
   },
   render() {
     return(
